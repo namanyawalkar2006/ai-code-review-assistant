@@ -11,7 +11,7 @@ A production-grade, end-to-end web application that conducts in-depth automated 
 ---
 
 ## 📽️ Demo Video
-> **Submission Demo Walkthrough**: [Link to 5-Minute Technical Assessment Video Placeholder](https://www.youtube.com/watch?v=placeholder-demo)
+> **Submission Demo Walkthrough**: [Link to 5-Minute Technical Assessment Video Placeholder](https://youtu.be/MPGbX8JOBBc)
 
 ---
 

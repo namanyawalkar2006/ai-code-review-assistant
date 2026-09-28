@@ -1,0 +1,135 @@
+// Prisma Schema for AI-Powered Code Review Assistant
+// Database: PostgreSQL
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ReviewMode {
+  SECURITY
+  PERFORMANCE
+  CODE_QUALITY
+}
+
+enum SeverityLevel {
+  CRITICAL
+  HIGH
+  MEDIUM
+  LOW
+}
+
+enum SenderType {
+  USER
+  ASSISTANT
+  SYSTEM
+}
+
+model User {
+  id           String       @id @default(uuid())
+  email        String       @unique
+  passwordHash String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  projects     Project[]
+  aiProviders  AIProvider[]
+
+  @@map("users")
+}
+
+model Project {
+  id           String        @id @default(uuid())
+  userId       String
+  name         String
+  description  String?
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  files        File[]
+  reviews      Review[]
+  chatSessions ChatSession[]
+
+  @@index([userId])
+  @@map("projects")
+}
+
+model File {
+  id        String   @id @default(uuid())
+  projectId String
+  path      String
+  content   String   @db.Text
+  size      Int
+  createdAt DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, path])
+  @@index([projectId])
+  @@map("files")
+}
+
+model Review {
+  id                  String        @id @default(uuid())
+  projectId           String
+  mode                ReviewMode
+  summary             String        @db.Text
+  issuesJson          Json          // Array of { file, line, rule, severity, message, suggestedFix }
+  recommendationsJson Json          // Array of string recommendations
+  severity            SeverityLevel
+  createdAt           DateTime      @default(now())
+
+  project             Project       @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@index([projectId])
+  @@index([mode])
+  @@index([severity])
+  @@map("reviews")
+}
+
+model AIProvider {
+  id              String   @id @default(uuid())
+  userId          String
+  baseUrl         String
+  apiKeyEncrypted String?
+  modelName       String
+  isDefault       Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("ai_providers")
+}
+
+model ChatSession {
+  id        String    @id @default(uuid())
+  projectId String
+  title     String
+  createdAt DateTime  @default(now())
+
+  project   Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  messages  Message[]
+
+  @@index([projectId])
+  @@map("chat_sessions")
+}
+
+model Message {
+  id        String     @id @default(uuid())
+  sessionId String
+  sender    SenderType
+  text      String     @db.Text
+  createdAt DateTime   @default(now())
+
+  session   ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@index([sessionId])
+  @@map("messages")
+}

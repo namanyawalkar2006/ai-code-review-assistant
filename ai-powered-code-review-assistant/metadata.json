@@ -1,0 +1,6 @@
+{
+  "name": "AI-Powered Code Review Assistant",
+  "description": "Production-grade, end-to-end AI Code Review Assistant with multi-provider AI engine, interactive code explorer, security/performance/quality audits, contextual chat, documentation & test generators, and monorepo architecture.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
